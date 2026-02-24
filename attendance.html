@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Attendance Panel</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#dfe9f3,#ffffff);
+    padding:20px;
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#2c3e50;
+}
+
+/* ===== CARD CONTAINER ===== */
+.container{
+    background:#ffffff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* ===== TOP CONTROLS ===== */
+.top-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.control-group{
+    flex:1;
+    min-width:200px;
+    display:flex;
+    flex-direction:column;
+}
+
+label{
+    font-size:14px;
+    margin-bottom:5px;
+    font-weight:600;
+    color:#555;
+}
+
+select,
+input{
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:14px;
+}
+
+button{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+}
+
+/* Buttons */
+.present{background:#27ae60;color:white;}
+.absent{background:#e74c3c;color:white;}
+.holiday{background:#f1c40f;color:white;}
+.auto{background:#3498db;color:white;}
+
+button:hover{
+    opacity:0.85;
+    transform:scale(1.02);
+}
+
+/* ===== TABLE ===== */
+.table-wrapper{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+
+th{
+    background:#2c3e50;
+    color:white;
+}
+
+tr:hover{
+    background:#f9f9f9;
+}
+
+.status{
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.status.present{background:#27ae60;color:white;}
+.status.absent{background:#e74c3c;color:white;}
+.status.holiday{background:#f1c40f;color:white;}
+
+/* ===== BOTTOM BUTTONS ===== */
+.bottom-buttons{
+    margin-top:20px;
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.bottom-buttons button{
+    min-width:120px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+
+    .top-controls{
+        flex-direction:column;
+    }
+
+    .bottom-buttons{
+        flex-direction:column;
+    }
+
+    .bottom-buttons button{
+        width:100%;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+    <!-- TOP CONTROLS -->
+    <div class="top-controls">
+
+        <div class="control-group">
+            <label>Select Division</label>
+            <select id="divisionSelect" onchange="loadStudents()"></select>
+        </div>
+
+        <div class="control-group">
+            <label>Select Date</label>
+            <input type="date" id="attDate">
+        </div>
+
+        <div class="control-group">
+            <label>&nbsp;</label>
+            <button class="auto" onclick="autoPresent()">Auto Present</button>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Roll</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="attTable"></tbody>
+        </table>
+    </div>
+
+    <div class="bottom-buttons">
+        <button class="present" onclick="markAttendance('Present')">Present</button>
+        <button class="absent" onclick="markAttendance('Absent')">Absent</button>
+        <button class="holiday" onclick="markAttendance('Holiday')">Holiday</button>
+    </div>
+
+</div>
+<script>
+
+// Load Data
+let students = JSON.parse(localStorage.getItem("students")) || [
+    {name:"Gautam", roll:"01", contact:"1234567890"},
+    {name:"Hetal", roll:"02", contact:"0987654321"},
+    {name:"Nisha", roll:"03", contact:"1122334455"},
+    {name:"Jay", roll:"04", contact:"6677889900"}
+];
+
+let attendance = JSON.parse(localStorage.getItem("attendance")) || {};
+
+
+localStorage.setItem("students", JSON.stringify(students));
+
+// Division Logic
+function getDivision(index){
+    let group = Math.floor(index / 3);
+    let letter = String.fromCharCode(65 + Math.floor(group/10));
+    let number = (group % 10) + 1;
+    return letter + number;
+}
+
+// Load Division Dropdown
+function loadDivision(){
+    let divisions=[];
+    students.forEach((s,i)=>{
+        let d=getDivision(i);
+        if(!divisions.includes(d)) divisions.push(d);
+    });
+    divisionSelect.innerHTML="<option value=''>Select</option>";
+    divisions.forEach(d=>{
+        divisionSelect.innerHTML+=`<option value="${d}">${d}</option>`;
+    });
+}
+loadDivision();
+
+// Load Students by Division
+function loadStudents(){
+    let div=divisionSelect.value;
+    let date=document.getElementById("attDate").value;
+    attTable.innerHTML="";
+
+    students.forEach((s,i)=>{
+        if(getDivision(i)==div){
+            let statusText="";
+            let statusClass="";
+
+            if(attendance[s.username] && attendance[s.username][date]){
+                statusText=attendance[s.username][date];
+                statusClass=statusText.toLowerCase();
+            }
+
+            attTable.innerHTML+=`
+            <tr>
+            <td><input type="checkbox" value="${i}"></td>
+            <td>${s.name}</td>
+            <td>${s.roll}</td>
+            <td>${s.contact}</td>
+            <td id="status${i}" class="status ${statusClass}">${statusText}</td>
+            
+            </tr>`;
+        }
+    });
+}
+
+// Mark Attendance
+function markAttendance(type){
+    let date=document.getElementById("attDate").value;
+    if(!date) return alert("Select Date");
+
+    let allRows = document.querySelectorAll("#attTable tr");
+
+    allRows.forEach(tr=>{
+        let checkbox = tr.querySelector("input");
+        let i = checkbox.value;
+        let username = students[i].username;
+
+        if(!attendance[username]) attendance[username]={};
+
+        let finalStatus="";
+
+        if(type=="Holiday"){
+            finalStatus="Holiday";
+        }else{
+            if(checkbox.checked){
+                finalStatus=type;  // Selected students
+            }else{
+                // Opposite status for unselected
+                finalStatus = (type=="Present") ? "Absent" : "Present";
+            }
+        }
+
+        attendance[username][date]=finalStatus;
+
+        document.getElementById("status"+i).innerText=finalStatus;
+        document.getElementById("status"+i).className="status "+finalStatus.toLowerCase();
+    });
+
+    localStorage.setItem("attendance", JSON.stringify(attendance));
+}
+
+// Auto Present
+function autoPresent(){
+    document.querySelectorAll("#attTable input").forEach(c=>c.checked=true);
+    markAttendance("Present");
+}
+
+// Delete Student + Attendance
+function deleteStudent(index){
+
+    let username = students[index].username;
+
+    // 🔴 Attendance માંથી સંપૂર્ણ delete
+    let attendanceData = JSON.parse(localStorage.getItem("attendance")) || {};
+    delete attendanceData[username];
+    localStorage.setItem("attendance", JSON.stringify(attendanceData));
+
+    // 🔴 Student list માંથી delete
+    students.splice(index,1);
+    localStorage.setItem("students", JSON.stringify(students));
+
+    loadDivision();
+    loadStudents();
+}
+
+
+
+
+
+</script>
+
+</body>
+</html>

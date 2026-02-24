@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<head>
+
+<meta charset="UTF-8">
+<title>Student Login</title>
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:"Segoe UI",Tahoma,sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+}
+
+/* MAIN BOX */
+.box{
+    width:100%;
+    max-width:480px;
+    background:#ffffff;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 20px 45px rgba(0,0,0,0.25);
+    animation:fadeIn .4s ease-in-out;
+}
+
+h2{
+    text-align:center;
+    margin-bottom:25px;
+    color:#1b2631;
+    letter-spacing:1px;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:10px 0;
+    border:1px solid #dcdcdc;
+    border-radius:10px;
+    font-size:14px;
+    transition:.3s;
+}
+
+input:focus{
+    border-color:#2c5364;
+    outline:none;
+    box-shadow:0 0 10px rgba(44,83,100,.3);
+}
+
+button{
+    padding:11px 18px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+    letter-spacing:.5px;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 15px rgba(0,0,0,.2);
+}
+
+.logout{
+    background:#c0392b;
+    color:#fff;
+    float:right;
+}
+
+.result-btn{
+    background:linear-gradient(135deg,#11998e,#38ef7d);
+    color:#fff;
+    margin-top:20px;
+    width:48%;
+}
+
+.receipt-btn{
+    background:linear-gradient(135deg,#396afc,#2948ff);
+    color:#fff;
+    margin-top:20px;
+    width:48%;
+}
+
+.button-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.close{
+    background:#c0392b;
+    color:#fff;
+    float:right;
+}
+
+/* TABLE RESPONSIVE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    border-radius:10px;
+    overflow:hidden;
+    background:#fafafa;
+    font-size:14px;
+}
+
+td,th{
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+    word-break:break-word;
+}
+
+th{
+    background:#2c5364;
+    color:#fff;
+    font-weight:600;
+}
+
+tr:hover{
+    background:#f2f6f9;
+}
+
+/* MODAL */
+#marksheet,#receiptBox{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.75);
+    overflow:auto;
+    backdrop-filter:blur(6px);
+    padding:20px;
+}
+
+.msheet-box{
+    width:100%;
+    max-width:1000px;
+    background:#fff;
+    margin:auto;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);
+    animation:slideUp .4s ease;
+}
+
+h3{
+    text-align:center;
+    margin-bottom:25px;
+    color:#1b2631;
+    letter-spacing:2px;
+}
+
+#receiptContent p{
+    padding:6px 0;
+    font-size:14px;
+}
+
+#receiptContent hr{
+    margin:20px 0;
+    border:none;
+    border-top:1px dashed #ccc;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes slideUp{
+    from{opacity:0;transform:translateY(40px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+/* 📱 MOBILE RESPONSIVE */
+@media(max-width:768px){
+
+.box{
+    padding:20px;
+}
+
+.button-row{
+    flex-direction:column;
+}
+
+.result-btn,
+.receipt-btn{
+    width:100%;
+}
+
+.msheet-box{
+    padding:20px;
+}
+
+table{
+    font-size:13px;
+}
+
+td,th{
+    padding:8px;
+}
+
+}
+
+@media(max-width:480px){
+
+h2{
+    font-size:20px;
+}
+
+h3{
+    font-size:18px;
+}
+
+table{
+    font-size:12px;
+}
+
+button{
+    font-size:13px;
+    padding:10px;
+}
+
+}
+/* ATTENDANCE CALENDAR UI */
+
+.calendar-grid{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:6px;
+}
+
+.day-box{
+background:#f4f6f7;
+padding:10px;
+border-radius:8px;
+min-height:70px;
+text-align:center;
+font-size:13px;
+box-shadow:0 3px 8px rgba(0,0,0,.08);
+}
+
+.day-number{
+font-weight:bold;
+margin-bottom:4px;
+}
+
+.present{
+background:#27ae60;
+color:#fff;
+}
+
+.absent{
+background:#e74c3c;
+color:#fff;
+}
+
+.holiday{
+background:#f1c40f;
+color:#000;
+}
+
+.header-day{
+font-weight:bold;
+background:#2c5364;
+color:#fff;
+padding:6px;
+border-radius:6px;
+text-align:center;
+}
+
+/* 📱 MOBILE RESPONSIVE */
+@media(max-width:768px){
+
+
+
+/* Attendance calendar grid */
+.calendar-grid{
+    gap:4px;
+}
+.day-box{
+    min-height:60px;
+    font-size:12px;
+}
+}
+
+@media(max-width:480px){
+
+h2{
+    font-size:20px;
+}
+
+h3{
+    font-size:18px;
+}
+
+table{
+    font-size:12px;
+}
+
+button{
+    font-size:13px;
+    padding:10px;
+}
+
+/* Attendance calendar for small screen */
+.calendar-grid{
+    grid-template-columns:repeat(7,1fr); /* still 7 columns but smaller */
+    gap:3px;
+}
+.day-box{
+    min-height:50px;
+    font-size:11px;
+}
+.day-number{
+    font-weight:bold;
+    margin-bottom:2px;
+}
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="box" id="loginBox">
+<h2>Student Login</h2>
+<input type="text" id="stuUser" placeholder="Username">
+<input type="password" id="stuPass" placeholder="Password">
+<button onclick="studentLogin()" style="background:linear-gradient(135deg,#396afc,#2948ff);color:#fff;width:100%;margin-top:15px;">Login</button>
+</div>
+
+<div class="box" id="dashboard" style="display:none;">
+<button class="logout" onclick="logout()">Logout</button>
+<h2>Student Dashboard</h2>
+
+<table>
+<tr><th>Division</th><td id="d_div"></td></tr>
+<tr><th>Name</th><td id="d_name"></td></tr>
+<tr><th>Contact</th><td id="d_contact"></td></tr>
+<tr><th>Roll</th><td id="d_roll"></td></tr>
+<tr><th>Course</th><td id="d_course"></td></tr>
+<tr><th>Username</th><td id="d_user"></td></tr>
+<tr><th>Password</th><td id="d_pass"></td></tr>
+</table>
+
+<div class="button-row">
+<button class="result-btn" onclick="openMarksheet()">View Result</button>
+<button class="receipt-btn" id="receiptBtn" onclick="openReceipt()">View Receipt (0)</button>
+<button onclick="openAttendance()" 
+style="background:linear-gradient(135deg,#ff9800,#ff5722);color:#fff;width:100%;margin-top:15px;">
+View Attendance
+</button>
+
+</div>
+</div>
+
+<!-- RESULT -->
+<div id="marksheet">
+<div class="msheet-box">
+<button class="close" onclick="closeMarksheet()">Close</button>
+<button onclick="downloadResultPDF()" 
+style="background:#27ae60;color:#fff;margin-bottom:15px;">
+Download PDF
+</button>
+
+<h3>UNIVERSITY EXAMINATION RESULT</h3>
+
+<table>
+<tr><th>Division</th><td id="ms_div"></td></tr>
+<tr><th>Name</th><td id="ms_name"></td></tr>
+<tr><th>Contact</th><td id="ms_contact"></td></tr>
+<tr><th>Roll</th><td id="ms_roll"></td></tr>
+<tr><th>Course</th><td id="ms_course"></td></tr>
+</table>
+
+<table>
+<tr>
+<th>Subject</th><th>Max</th><th>Min</th><th>Obtained</th><th>Result</th>
+</tr>
+<tbody id="resultBody"></tbody>
+</table>
+
+<table>
+<tr><td>Total</td><td id="ms_total"></td></tr>
+<tr><td>Percentage</td><td id="ms_percent"></td></tr>
+<tr><td>Final Result</td><td id="ms_final"></td></tr>
+</table>
+</div>
+</div>
+
+<!-- RECEIPT -->
+<div id="receiptBox">
+<div class="msheet-box">
+<button class="close" onclick="closeReceipt()">Close</button>
+<button onclick="downloadReceiptPDF()" 
+style="background:#27ae60;color:#fff;margin-bottom:15px;">
+Download PDF
+</button>
+
+<h3>FEE PAYMENT RECEIPT</h3>
+<div id="receiptContent"></div>
+</div>
+</div>
+<!-- ATTENDANCE -->
+<!-- ATTENDANCE CALENDAR -->
+<div id="attendanceBox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);padding:20px;overflow:auto;">
+<div class="msheet-box">
+
+<button class="close" onclick="closeAttendance()">Close</button>
+
+<h3>STUDENT ATTENDANCE CALENDAR</h3>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+<button onclick="changeMonth(-1)">◀</button>
+<h4 id="monthYear"></h4>
+<button onclick="changeMonth(1)">▶</button>
+</div>
+
+<div class="calendar-grid" id="calendar"></div>
+
+<p id="attendanceSummary" style="margin-top:15px;font-weight:bold;text-align:center;"></p>
+
+</div>
+</div>
+
+
+
+
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let currentStudent = null;
+let currentIndex = null;
+
+function getDivision(index){
+let group=Math.floor(index/3);
+let letterIndex=Math.floor(group/10);
+let number=(group%10)+1;
+return String.fromCharCode(65+letterIndex)+number;
+}
+
+function studentLogin(){
+students = JSON.parse(localStorage.getItem("students")) || [];
+let u = stuUser.value.trim();
+let p = stuPass.value.trim();
+let index = students.findIndex(s => s.username===u && s.password===p);
+
+if(index !== -1){
+currentStudent = students[index];
+currentIndex = index;
+
+d_div.innerText = getDivision(index);
+d_name.innerText = currentStudent.name;
+d_contact.innerText = currentStudent.contact;
+d_roll.innerText = currentStudent.roll;
+d_course.innerText = currentStudent.course;
+d_user.innerText = currentStudent.username;
+d_pass.innerText = currentStudent.password;
+
+let receiptCount = currentStudent.receipts ? currentStudent.receipts.length : 0;
+receiptBtn.innerText = "View Receipt ("+receiptCount+")";
+
+loginBox.style.display="none";
+dashboard.style.display="block";
+}else{
+alert("Invalid Username or Password");
+}
+}
+
+/* 🔵 NEW RECEIPT SYSTEM */
+function openReceipt(){
+receiptBox.style.display="block";
+let data = students[currentIndex];
+let html = "";
+
+if(data.receipts && data.receipts.length>0){
+
+/* 🔹 Top Number Buttons */
+html += "<div style='margin-bottom:15px;text-align:center;'>";
+data.receipts.forEach((r,i)=>{
+html += `<button onclick="showSingleReceipt(${i})" 
+style="margin:5px;padding:8px 15px;border:none;border-radius:8px;background:#396afc;color:#fff;cursor:pointer;">
+${i+1}
+</button>`;
+});
+html += "</div>";
+
+/* 🔹 Empty Content Area */
+html += "<div id='singleReceipt'></div>";
+
+}else{
+html="<p style='text-align:center;'>No Receipt Found</p>";
+}
+
+receiptContent.innerHTML = html;
+}
+
+/* 🔵 Show Only Clicked Receipt */
+function showSingleReceipt(i){
+let data = students[currentIndex];
+let r = data.receipts[i];
+
+let pending = (Number(data.totalFees)||0) - (Number(data.paidFees)||0);
+if(pending<0) pending=0;
+
+let html = `
+<hr>
+<p><b>Receipt No:</b> ${i+1}</p>
+<p><b>Name:</b> ${data.name}</p>
+<p><b>Course:</b> ${data.course}</p>
+<p><b>Roll:</b> ${data.roll}</p>
+<p><b>Total Fees:</b> ₹${data.totalFees||0}</p>
+<p><b>Paid Amount:</b> ₹${r.amount}</p>
+<p><b>Total Paid:</b> ₹${data.paidFees}</p>
+<p><b>Pending Fees:</b> ₹${pending}</p>
+<p><b>Date & Time:</b> ${r.date}</p>
+`;
+
+document.getElementById("singleReceipt").innerHTML = html;
+}
+
+function closeReceipt(){receiptBox.style.display="none";}
+
+/* RESULT SAME */
+function openMarksheet(){
+marksheet.style.display="block";
+
+ms_div.innerText = getDivision(currentIndex);
+ms_name.innerText = currentStudent.name;
+ms_contact.innerText = currentStudent.contact;
+ms_roll.innerText = currentStudent.roll;
+ms_course.innerText = currentStudent.course;
+
+const MAX=80, MIN=27, TOTAL_MAX=400;
+
+let subjects=[
+{name:"Gujarati",mark:Number(currentStudent.m1)||0},
+{name:"English",mark:Number(currentStudent.m2)||0},
+{name:"Hindi",mark:Number(currentStudent.m3)||0},
+{name:"Science",mark:Number(currentStudent.m4)||0},
+{name:"Maths",mark:Number(currentStudent.m5)||0}
+];
+
+let total=0, finalResult="PASS", tableHTML="";
+
+subjects.forEach(sub=>{
+total+=sub.mark;
+let status=sub.mark>=MIN?"PASS":"FAIL";
+if(sub.mark<MIN) finalResult="FAIL";
+tableHTML+=`<tr><td>${sub.name}</td><td>${MAX}</td><td>${MIN}</td><td>${sub.mark}</td><td>${status}</td></tr>`;
+});
+
+resultBody.innerHTML=tableHTML;
+let percent=((total/TOTAL_MAX)*100).toFixed(2);
+ms_total.innerText=total+" / "+TOTAL_MAX;
+ms_percent.innerText=percent+" %";
+ms_final.innerText=finalResult;
+}
+
+function closeMarksheet(){marksheet.style.display="none";}
+function logout(){location.reload();}
+
+/* recipt result */
+async function downloadResultPDF(){
+
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+
+const MAX = 80, MIN = 27, TOTAL_MAX = 400;
+
+let subjects = [
+{name:"Gujarati",mark:Number(currentStudent.m1)||0},
+{name:"English",mark:Number(currentStudent.m2)||0},
+{name:"Hindi",mark:Number(currentStudent.m3)||0},
+{name:"Science",mark:Number(currentStudent.m4)||0},
+{name:"Maths",mark:Number(currentStudent.m5)||0}
+];
+
+let total = 0;
+let finalResult = "PASS";
+
+doc.setFontSize(16);
+doc.text("UNIVERSITY EXAMINATION RESULT", 55, 20);
+
+doc.setFontSize(12);
+doc.text("Name: " + currentStudent.name, 20, 35);
+doc.text("Roll: " + currentStudent.roll, 20, 43);
+doc.text("Course: " + currentStudent.course, 20, 51);
+
+let startY = 65;
+
+/* 🔷 Table Header Background */
+doc.setFillColor(44,83,100);
+doc.rect(20, startY-6, 170, 8, "F");
+doc.setTextColor(255,255,255);
+
+doc.text("Subject", 22, startY);
+doc.text("Max", 85, startY);
+doc.text("Min", 105, startY);
+doc.text("Obtained", 125, startY);
+doc.text("Result", 165, startY);
+
+doc.setTextColor(0,0,0);
+startY += 10;
+
+subjects.forEach(sub=>{
+
+total += sub.mark;
+let status = sub.mark >= MIN ? "PASS" : "FAIL";
+if(sub.mark < MIN) finalResult = "FAIL";
+
+/* Row Border */
+doc.rect(20, startY-6, 170, 8);
+
+doc.text(sub.name, 22, startY);
+doc.text(String(MAX), 90, startY);
+doc.text(String(MIN), 110, startY);
+doc.text(String(sub.mark), 135, startY);
+
+/* PASS GREEN / FAIL RED */
+if(status=="PASS"){
+doc.setTextColor(0,150,0);
+}else{
+doc.setTextColor(200,0,0);
+}
+doc.text(status, 165, startY);
+doc.setTextColor(0,0,0);
+
+startY += 10;
+});
+
+/* Summary Box */
+let percent = ((total/TOTAL_MAX)*100).toFixed(2);
+
+startY += 5;
+
+doc.text("Total: " + total + " / " + TOTAL_MAX, 25, startY);
+doc.text("Percentage: " + percent + " %", 25, startY+8);
+
+if(finalResult=="PASS"){
+doc.setTextColor(0,150,0);
+}else{
+doc.setTextColor(200,0,0);
+}
+doc.text("Final Result: " + finalResult, 25, startY+16);
+
+doc.save(currentStudent.name + "_Result.pdf");
+}
+
+
+async function downloadReceiptPDF(){
+
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+
+let data = students[currentIndex];
+let latestReceipt = data.receipts[data.receipts.length-1];
+
+let pending = (Number(data.totalFees)||0) - (Number(data.paidFees)||0);
+if(pending<0) pending=0;
+
+doc.setFontSize(16);
+doc.text("FEE PAYMENT RECEIPT", 60, 20);
+
+doc.setFontSize(12);
+
+let startY = 40;
+
+/* Header Background */
+doc.setFillColor(41,72,255);
+doc.rect(20, startY-6, 170, 8, "F");
+doc.setTextColor(255,255,255);
+doc.text("Details", 95, startY);
+doc.setTextColor(0,0,0);
+
+startY += 12;
+
+/* Table Rows */
+let rows = [
+["Name", data.name],
+["Course", data.course],
+["Roll", data.roll],
+["Total Fees", "Rs " + (data.totalFees||0)],
+["Paid Amount", "Rs " + latestReceipt.amount],
+["Total Paid", "Rs " + data.paidFees],
+["Pending Fees", "Rs " + pending],
+["Date", latestReceipt.date]
+];
+
+rows.forEach(r=>{
+doc.rect(20, startY-6, 170, 8);
+doc.text(r[0], 25, startY);
+doc.text(String(r[1]), 100, startY);
+startY += 10;
+});
+
+doc.save(data.name + "_Receipt.pdf");
+}
+
+/* attendance */
+function generateCalendar(date){
+
+    let calendar = document.getElementById("calendar");
+    let monthYear = document.getElementById("monthYear");
+    let attendanceData = JSON.parse(localStorage.getItem("attendance")) || {};
+    let records = attendanceData[currentStudent.username] || {}; // admin-set statuses only
+
+    calendar.innerHTML="";
+
+    let year = date.getFullYear();
+    let month = date.getMonth();
+
+    let firstDay = new Date(year,month,1).getDay();
+    let totalDays = new Date(year,month+1,0).getDate();
+
+    let monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    monthYear.innerText = monthNames[month]+" "+year;
+
+    /* Week Header */
+    let weekDays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    weekDays.forEach(d=>{
+        calendar.innerHTML+=`<div class="header-day">${d}</div>`;
+    });
+
+    /* Empty boxes before first day */
+    for(let i=0;i<firstDay;i++){
+        calendar.innerHTML+=`<div></div>`;
+    }
+
+    let presentCount=0;
+    let absentCount=0;
+    let holidayCount=0;
+
+    for(let d=1; d<=totalDays; d++){
+
+        let fullDate = year+"-"+String(month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+
+        let status = records[fullDate]; // only admin-set
+        let className="";
+        let statusText="";
+
+        if(status==="Present"){
+            className="present";
+            statusText="Present";
+            presentCount++;
+        }
+        else if(status==="Absent"){
+            className="absent";
+            statusText="Absent";
+            absentCount++;
+        }
+        else if(status==="Holiday"){
+            className="holiday";
+            statusText="Holiday";
+            holidayCount++;
+        }
+
+        calendar.innerHTML+=`
+            <div class="day-box ${className}">
+                <div class="day-number">${d}</div>
+                <div>${statusText}</div>
+            </div>
+        `;
+    }
+
+    attendanceSummary.innerHTML=
+    "Present: <span style='color:green'>"+presentCount+
+    "</span> | Absent: <span style='color:red'>"+absentCount+
+    "</span> | Holiday: <span style='color:#f1c40f'>"+holidayCount+"</span>";
+}
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+
+function openAttendance(){
+    document.getElementById("attendanceBox").style.display = "block";
+    generateCalendar(new Date(currentYear, currentMonth, 1));
+}
+
+function closeAttendance(){
+    document.getElementById("attendanceBox").style.display = "none";
+}
+
+function changeMonth(offset){
+    currentMonth += offset;
+    if(currentMonth > 11){
+        currentMonth = 0;
+        currentYear++;
+    }
+    if(currentMonth < 0){
+        currentMonth = 11;
+        currentYear--;
+    }
+    generateCalendar(new Date(currentYear, currentMonth, 1));
+}
+
+
+</script>
+
+
+</body>
+</html>

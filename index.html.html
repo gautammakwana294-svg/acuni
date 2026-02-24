@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University Admin Panel</title>
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: linear-gradient(135deg,#e3f2fd,#f5f7fa);
+    padding:20px;
+    color:#2c3e50;
+}
+
+/* ===== HEADER ===== */
+h2{
+    text-align:center;
+    margin-bottom:25px;
+    font-size:26px;
+    font-weight:600;
+    letter-spacing:1px;
+}
+
+/* ===== TOP BAR ===== */
+.search-box{
+    max-width:700px;
+    margin:0 auto 20px auto;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+}
+
+.search-box input{
+    flex:1;
+    min-width:250px;
+    padding:10px 15px;
+    border-radius:30px;
+    border:1px solid #ccc;
+    font-size:14px;
+    transition:.3s;
+}
+
+.search-box input:focus{
+    border-color:#3498db;
+    box-shadow:0 0 10px rgba(52,152,219,0.2);
+}
+
+/* ===== BUTTONS ===== */
+.search-btn,
+.add-btn{
+    padding:10px 20px;
+    border-radius:30px;
+    background:#1f2d3d;
+    color:#fff;
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    font-size:14px;
+    transition:.3s;
+}
+
+.search-btn:hover,
+.add-btn:hover{
+    background:#3498db;
+    transform:translateY(-2px);
+}
+
+.add-btn{
+    display:block;
+    margin:0 auto 20px auto;
+    width:220px;
+    font-weight:600;
+}
+
+/* ===== TABLE ===== */
+.table-container{
+    background:#fff;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.05);
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    min-width:1400px;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+thead{
+    background:#1f2d3d;
+    color:#fff;
+    position:sticky;
+    top:0;
+}
+
+thead th{
+    padding:12px 8px;
+    font-weight:500;
+}
+
+tbody td{
+    padding:8px;
+    border-bottom:1px solid #eee;
+    text-align:center;
+}
+
+tbody tr:hover{
+    background:#f9fbfd;
+}
+
+/* ===== INPUTS ===== */
+input{
+    padding:6px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    font-size:12px;
+    text-align:center;
+    transition:.2s;
+}
+
+input:focus{
+    border-color:#3498db;
+    outline:none;
+}
+
+.name-input{
+    min-width:250px;
+}
+
+.small-input{
+    width:80px;
+}
+
+.password-input{
+    width:100px;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.save{
+    background:#27ae60;
+    color:#fff;
+}
+
+.delete{
+    background:#e74c3c;
+    color:#fff;
+}
+
+.v{
+    background:#3498db;
+    color:#fff;
+}
+
+button{
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    opacity:.9;
+    transform:translateY(-1px);
+}
+
+.pay-box,
+.action-box{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+
+    h2{
+        font-size:20px;
+    }
+
+    .search-box{
+        flex-direction:column;
+    }
+
+    .search-box input{
+        width:100%;
+    }
+
+    .search-btn,
+    .add-btn{
+        width:100%;
+    }
+
+    .table-container{
+        padding:10px;
+    }
+}
+/* Remove number input spinner */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+/* Button click color change */
+.clicked{
+    background:#f39c12 !important;  /* Orange color */
+    color:#fff !important;
+}
+
+.search-btn{
+    padding:10px 20px;
+    border-radius:30px;
+    background:#1f2d3d;
+    color:#fff;
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    font-size:14px;
+    transition:.3s;
+
+    display:flex;              /* ADD */
+    justify-content:center;    /* ADD */
+    align-items:center;        /* ADD */
+    text-align:center;         /* ADD */
+}
+</style>
+</head>
+<body>
+
+<h2>University Admin Dashboard</h2>
+
+<div class="search-box">
+
+<a href="attendance.html" class="search-btn">Attendance</a>
+
+<input type="text" id="searchInput" placeholder="Search by Name / Roll / Course..." onkeyup="renderTable()">
+
+<a href="student.html" class="search-btn">
+Student Login
+</a>
+
+</div>
+
+</div>
+<button  class="search-btn"class="v add-btn" onclick="addStudent()">+ ADD STUDENT</button><br><br>
+
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>No.</th>
+<th>Division</th><th>Name</th><th>Contact</th><th>Roll</th><th>Course</th>
+<th>Total Fees</th><th>Pay Fees</th><th>Paid Fees</th><th>Pending Fees</th>
+<th>Username</th><th>Password</th>
+<th>Gujarati</th><th>English</th><th>Hindi</th><th>Science</th><th>Maths</th>
+<th>Total</th><th>%</th><th>Result</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="studentTable"></tbody>
+</table>
+</div>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+function getDivision(index){
+    let group=Math.floor(index/3);
+    let letterIndex=Math.floor(group/10);
+    let number=(group%10)+1;
+    return String.fromCharCode(65+letterIndex)+number;
+}
+
+function addStudent(){
+    students.push({
+        name:"",contact:"",roll:"",course:"",
+        username:"",password:"",
+        m1:"",m2:"",m3:"",m4:"",m5:"",
+        total:"",percent:"",grade:"",
+        totalFees:"",paidFees:0,
+        receipts:[]
+    });
+    renderTable();
+}
+
+function payFees(i,value){
+    let s=students[i];
+    let amount=Number(value)||0;
+    if(amount<=0) return;
+    s.paidFees += amount;
+    if(!s.receipts) s.receipts=[];
+    s.receipts.push({amount:amount,date:new Date().toLocaleString()});
+    saveStudents();
+    renderTable();
+}
+
+function calculateResult(i){
+    let s=students[i];
+    let marks=[s.m1,s.m2,s.m3,s.m4,s.m5].map(v=>Number(v)||0);
+    let maxTotal=80*5;
+    s.total=marks.reduce((a,b)=>a+b,0);
+    s.percent=((s.total/maxTotal)*100).toFixed(2);
+    let passAll=marks.every(mark=>mark>=27);
+    s.grade=passAll?"PASS":"FAIL";
+    document.getElementById("total"+i).innerText=s.total;
+    document.getElementById("percent"+i).innerText=s.percent+"%";
+    document.getElementById("result"+i).innerText=s.grade;
+}
+
+function renderTable(){
+    studentTable.innerHTML="";
+    let search=document.getElementById("searchInput").value.toLowerCase();
+
+    students.forEach((s,i)=>{
+        if(s.name.toLowerCase().includes(search) || s.roll.toString().includes(search) || s.course.toLowerCase().includes(search)){
+            let pending=(Number(s.totalFees)||0)-(Number(s.paidFees)||0);
+            if(pending<0) pending=0;
+
+   
+     
+	 studentTable.innerHTML+=`
+
+<tr>
+<td>${i+1}</td>
+<td>${getDivision(i)}</td>
+<td><input class="name-input" value="${s.name}" data-i="${i}" data-key="name" onchange="students[${i}].name=this.value"></td>
+<td><input type="text" maxlength="10" class="small-input" value="${s.contact}" data-i="${i}" data-key="contact" onchange="students[${i}].contact=this.value"></td>
+
+<td><input class="small-input" value="${s.roll}" data-i="${i}" data-key="roll" onchange="students[${i}].roll=this.value"></td>
+<td><input class="small-input" value="${s.course}" data-i="${i}" data-key="course" onchange="students[${i}].course=this.value"></td>
+<td><input type="number" class="small-input" value="${s.totalFees}" data-i="${i}" data-key="totalFees" onchange="students[${i}].totalFees=this.value;renderTable()"></td>
+<td>
+<div class="pay-box">
+<input type="number" class="small-input" id="pay${i}">
+<button class="v" onclick="payFees(${i},document.getElementById('pay${i}').value); changeAddColor(this)">ADD</button>
+
+</div>
+</td>
+<td>${s.paidFees||0}</td>
+<td>${pending}</td>
+<td><input class="name-input" value="${s.username}" data-i="${i}" data-key="username" onchange="students[${i}].username=this.value"></td>
+<td><input class="password-input" maxlength="10" value="${s.password}" data-i="${i}" data-key="password" onchange="students[${i}].password=this.value"></td>
+<td><input type="text" maxlength="2" class="small-input" value="${s.m1}" oninput="this.value=this.value.replace(/[^0-9]/g,''); students[${i}].m1=this.value;calculateResult(${i})"></td>
+
+<td><input type="text" maxlength="2" class="small-input" value="${s.m2}" oninput="this.value=this.value.replace(/[^0-9]/g,''); students[${i}].m2=this.value;calculateResult(${i})"></td>
+
+<td><input type="text" maxlength="2" class="small-input" value="${s.m3}" oninput="this.value=this.value.replace(/[^0-9]/g,''); students[${i}].m3=this.value;calculateResult(${i})"></td>
+
+<td><input type="text" maxlength="2" class="small-input" value="${s.m4}" oninput="this.value=this.value.replace(/[^0-9]/g,''); students[${i}].m4=this.value;calculateResult(${i})"></td>
+
+<td><input type="text" maxlength="2" class="small-input" value="${s.m5}" oninput="this.value=this.value.replace(/[^0-9]/g,''); students[${i}].m5=this.value;calculateResult(${i})"></td>
+<td id="total${i}">${s.total||""}</td>
+<td id="percent${i}">${s.percent? s.percent+"%":""}</td>
+<td id="result${i}">${s.grade||""}</td>
+<td>
+<div class="action-box">
+<button class="save" onclick="saveStudents(); changeSaveColor(this)">SAVE</button>
+
+<button class="delete" onclick="deleteStudent(${i})">DELETE</button>
+</div>
+</td>
+</tr>`;
+        }
+    });
+
+    // Arrow Key Navigation
+    let inputs = Array.from(document.querySelectorAll('input'));
+    inputs.forEach((input,index)=>{
+        input.addEventListener('keydown',function(e){
+            if(e.key==='ArrowRight'){ e.preventDefault(); if(inputs[index+1]) inputs[index+1].focus();}
+            if(e.key==='ArrowLeft'){ e.preventDefault(); if(inputs[index-1]) inputs[index-1].focus();}
+            if(e.key==='ArrowDown'){ e.preventDefault(); let nextRowInput = inputs.find((inp,i)=>i>index && inp.closest('tr')!==input.closest('tr')); if(nextRowInput) nextRowInput.focus();}
+            if(e.key==='ArrowUp'){ e.preventDefault(); let prevRowInput = [...inputs].reverse().find((inp,i)=>inputs.length-i-1<index && inp.closest('tr')!==input.closest('tr')); if(prevRowInput) prevRowInput.focus();}
+        });
+    });
+}
+
+function saveStudents(){
+    localStorage.setItem("students",JSON.stringify(students));
+}
+function deleteStudent(i){
+
+    let username = students[i].username;
+
+    // 🔴 Attendance પણ delete કરવું
+    let attendance = JSON.parse(localStorage.getItem("attendance")) || {};
+
+    if(attendance[username]){
+        delete attendance[username];
+        localStorage.setItem("attendance", JSON.stringify(attendance));
+    }
+
+    // 🔴 Student delete
+    students.splice(i,1);
+    localStorage.setItem("students", JSON.stringify(students));
+
+    renderTable();
+}
+
+renderTable();
+function changeSaveColor(btn){
+    btn.classList.add("clicked");
+}
+function changeAddColor(btn){
+    btn.classList.add("clicked");
+}
+
+
+</script>
+
+</body>
+</html>
